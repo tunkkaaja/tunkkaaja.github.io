@@ -6,6 +6,12 @@ gem "jekyll-theme-chirpy", "~> 7.6"
 
 gem "html-proofer", "~> 5.0", group: :test
 
+
+group :jekyll_plugins do
+  gem "jekyll-compose"
+end
+
+
 platforms :windows, :jruby do
   gem "tzinfo", ">= 1", "< 3"
   gem "tzinfo-data"
