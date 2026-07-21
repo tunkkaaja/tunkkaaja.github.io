@@ -16,7 +16,7 @@ timezone: Europe/Helsinki
 
 title: TLP-Unclear # the main title
 
-tagline: Blog for a sharing cool stuff I come across # it will display as the subtitle
+tagline: "TLP:UNCLEAR, just like TLP:CLEAR but unclear. Or something." # it will display as the subtitle
 
 description: >- # used by seo meta and the atom feed
   A minimal, responsive and feature-rich Jekyll theme for technical writing.
