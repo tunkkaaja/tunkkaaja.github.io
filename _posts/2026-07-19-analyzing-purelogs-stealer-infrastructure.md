@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Analyzing Adversary Infrastructure
-date: 2026-07-21 18:00 +0300
+date: 2026-07-21 19:45 +0300
 categories: [threat intel]
 description: Analyzing threat actor infrastructure to identify additional command & control servers.
 ---
