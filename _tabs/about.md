@@ -6,7 +6,7 @@ order: 2
 
 ## Me
 
-I am a cybersecurity professional, enthusiast in most things technical, meme enjoyer and dog person. Right now I have been working in the Cybersecurity field for 4 years and prior to that 5 years in the other roles in the IT field. In my career so far I have mostly focused on the blue side of cybersecurity such as incident response and forensics from the technical point of view. Though I have also dabbled in other things such as offensive security, threat intelligence and writing analysis. 
+I am a cybersecurity professional, enthusiast in most things technical, meme connoisseur and a dog person. Right now I have been working in the cybersecurity field for the past four years and prior to that five years in the other roles in the IT field. In my career so far I have mostly focused on the blue side of cybersecurity such as incident response and forensics from the technical point of view. Though I have also dabbled in other things such as offensive security, threat intelligence and writing analysis.
 
 Outside my work I enjoy learning new things about cybersecurity and building various personal projects. Currently I am working on projects related to threat intelligence and specifically the infrastructure threat actors use.
 
