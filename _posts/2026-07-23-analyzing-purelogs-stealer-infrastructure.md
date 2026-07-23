@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Analyzing Adversary Infrastructure
-date: 2026-07-22 18:45 +0300
+date: 2026-07-23 17:30 +0300
 categories: [threat intel]
 description: Analyzing threat actor infrastructure to identify additional command & control servers.
 ---
@@ -14,7 +14,7 @@ To find a starting point I read [this article](https://blog.deception.pro/blog/c
 
 During my initial review of the article one detail about the IOCs stood out to me. Two of the malware listed had their Command & Control servers (C2s) in the same network, this is not very common as threat actors often attempt to spread out their infrastructure among different service providers or only have a single C2 server per campaign. 
 
-![Indicators of Compromise](assets/img/posts/2026-07-22-analyzing-purelogs-stealer-infrastructure/indiactors.png){: w="500" h="300" .normal }
+![Indicators of Compromise](assets/img/posts/2026-07-23-analyzing-purelogs-stealer-infrastructure/indiactors.png){: w="500" h="300" .normal }
 
 I chose these two IP addresses as the starting point for my investigation to identify additional infrastructure:
 
@@ -32,7 +32,7 @@ The next step was examining historical data for the hosts from Validin and FOFA.
 
 Quick look reveals both services at the port **8443** responded with identical headers and had the same JARM and HTML hashes, as well as a similar certificate with seemingly sensible but clearly fake details. These services appear to be the same one. The focus will now be on this service at port **8443**, which according to the article was the C2 for **PureLogs Stealer** (credential harvesting tool).
 
-![First Pivot](assets/img/posts/2026-07-22-analyzing-purelogs-stealer-infrastructure/first_pivot.png){: w="820" h="420" .normal }
+![First Pivot](assets/img/posts/2026-07-23-analyzing-purelogs-stealer-infrastructure/first_pivot.png){: w="820" h="420" .normal }
 
 # Pivoting to identify live servers from Shodan
 
@@ -46,7 +46,7 @@ ssl.jarm:"2ad2ad16d00000022c2ad2ad2ad2ad46ff59a659b30fd8aeaa6755c67691b4" port:8
 
 At the time of writing this query returns **19 hosts**. It is possible to quickly identify the hosts have a similar service, almost certainly a C2 server, running with identical headers and similar nonsensical certificate details.
 
-![Initial results](assets/img/posts/2026-07-22-analyzing-purelogs-stealer-infrastructure/shodan_results1.png){: w="620" h="220" .normal }
+![Initial results](assets/img/posts/2026-07-23-analyzing-purelogs-stealer-infrastructure/shodan_results1.png){: w="620" h="220" .normal }
 
 
 # Tweaking the Shodan search query
@@ -66,15 +66,15 @@ At the time of writing this query returns **26 hosts**, suggesting the JARM fing
 
 After going through the data of the remaining hosts, this can be clearly demonstrated as among the remaining hosts there was 8 different JARM values.
 
-![JARM results](assets/img/posts/2026-07-22-analyzing-purelogs-stealer-infrastructure/jarm.png)
+![JARM results](assets/img/posts/2026-07-23-analyzing-purelogs-stealer-infrastructure/jarm.png)
 
 Another way to group the remaining hosts is by using the **JA3S** value, which is an [alternative method](https://engineering.salesforce.com/tls-fingerprinting-with-ja3-and-ja3s-247362855967/) to **JARM** for fingerprinting TLS implementations. When grouping by the **JA3S** value the hosts are split into groups of 12 and 14 hosts, this is due to the ciphers preferred by the hosts, as can be seen here.
 
-![JA3S values](assets/img/posts/2026-07-22-analyzing-purelogs-stealer-infrastructure/ja3s.png)
+![JA3S values](assets/img/posts/2026-07-23-analyzing-purelogs-stealer-infrastructure/ja3s.png)
 
 This also very nicely demonstrates how the **JA3S** value changes due to the cipher suite in the TLS connection, as the cipher is one of the building blocks the JA3S is calculated from.
 
-![JA3S description](assets/img/posts/2026-07-22-analyzing-purelogs-stealer-infrastructure/ja3s-text.png){: w="650" h="300" .normal }
+![JA3S description](assets/img/posts/2026-07-23-analyzing-purelogs-stealer-infrastructure/ja3s-text.png){: w="650" h="300" .normal }
 
 It is also possible to see the same phenomenon with the **JARM** values. As the first 30 digits of the value is: 
 
@@ -86,17 +86,17 @@ This means that 10 TLS Client Hello packets are sent to the server, and the spec
 
 As we identified earlier 12 of the hosts use **ECDHE-RSA-AES256-GCM-SHA384** while the remaining 14 use **TLS_AES_256_GCM_SHA384**, this can actually be seen in the values. Focusing only on the first 30 digits, it is clear that the first **JARM** value differs significantly from the others. The remaining ones are very similar to one another. Especially when you take into account that ***000*** means the server refused the negotiation for some reason and most of the hosts having responded with ***42d*** at least once, just at different times within the 10 packets they received. This means that the 14 hosts have quite similar TLS implementations, though not identical. This could mean they are using the same C2 only configured differently, slightly different versions of the same C2, running on different operating systems or with different libraries being used.
 
-![JARM value similarities](assets/img/posts/2026-07-22-analyzing-purelogs-stealer-infrastructure/jarm2.png)
+![JARM value similarities](assets/img/posts/2026-07-23-analyzing-purelogs-stealer-infrastructure/jarm2.png)
 
 This information allows us to cluster these hosts based on their similarity and various aspects of their fingerprints. One clearly different cluster with all hosts having identical TLS implementations and another cluster/multiple smaller clusters of hosts with slightly different TLS implementations. *By the time I built this graph the total number of hosts visible had gone down.*
 
-![Maltego graph](assets/img/posts/2026-07-22-analyzing-purelogs-stealer-infrastructure/maltego.png)
+![Maltego graph](assets/img/posts/2026-07-23-analyzing-purelogs-stealer-infrastructure/maltego.png)
 
 # Conclusion
 
 Although the two hosts identified from the article were no longer a part of live C2 infrastructure, pivoting from them through infrastructure analysis revealed 26 additional hosts with active C2 servers. Most of the identified C2 IP addresses were clean as far as Virustotal was concerned, some had multiple reports for different malware. Some of the Virustotal reports also confirm that our hypothesis that this was the same type of C2 that we began with *(though here the PureHVNC C2 is using port 56001 here instead of 65001 from the article).*
 
-![Virustotal](assets/img/posts/2026-07-22-analyzing-purelogs-stealer-infrastructure/virustotal.png)
+![Virustotal](assets/img/posts/2026-07-23-analyzing-purelogs-stealer-infrastructure/virustotal.png)
 
 This shows some of the value of proactive infrastructure analysis, it is possible to map out additional C2s before they are identified as malicious or even used in attacks.
 
